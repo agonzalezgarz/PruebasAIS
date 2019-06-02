@@ -1,10 +1,11 @@
 package es.codeurjc.ais.tictactoe;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import org.mockito.ArgumentCaptor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import es.codeurjc.ais.tictactoe.TicTacToeGame.EventType;
 import es.codeurjc.ais.tictactoe.TicTacToeGame.WinnerValue;
