@@ -59,8 +59,8 @@ class WebAppTest {
 		w2 = new WebDriverWait(browser2,30);
 		
 		//conectar
-		browser1.get("localhost:8081");
-		browser2.get("localhost:8081");
+		browser1.get("localhost:8080");
+		browser2.get("localhost:8080");
 		
 		//esperar que se cargen
 		w1.until(ExpectedConditions.visibilityOf(browser1.findElement(By.id("nickname"))));
