@@ -166,4 +166,9 @@ public class TicTacToeGame {
 		}
 	}
 	
+	public Board getBoard() {
+		// TODO Auto-generated method stub
+		return this.board;
+}
+	
 }
