@@ -1,399 +1,230 @@
 package es.codeurjc.ais.tictactoe;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import es.codeurjc.ais.tictactoe.TicTacToeGame.EventType;
 import es.codeurjc.ais.tictactoe.TicTacToeGame.WinnerValue;
+import es.codeurjc.ais.tictactoe.Player;
 
-public class TicTacToeGameTest{
+@DisplayName("Pruebas de dobles de la clase TicTacToeGame")
+class TicTacToeGameTest {
+	private static Player p1;
+	private static Player p2;
+	private static TicTacToeGame game;
+	private static Connection c1;
+	private static Connection c2;
 	
+	@BeforeAll
+	protected static void setUp() {
+		BoardTest.prepareTest();
+		p1 = BoardTest.p1;
+		p2 = BoardTest.p2;
+		c1 = mock(Connection.class);	
+		c2 = mock(Connection.class);	
+	}
 	
-	TicTacToeGame game;
-	Player jugadorUno, jugadorDos;
-	Connection conexionUno, conexionDos;
-	
-	// Lo vamos a ejecutar antes de cada test, evitamos duplicar el codigo
-
-	@Before
-	public void setUp() {
-		
-	//	Creamos el objeto TicTacToeGame
-		
+	@BeforeEach
+	private void startGame() {
+		//creamos juego nuevo, restablecer
 		game = new TicTacToeGame();
-			
-	//	Creamos los dobles de los objetos Connection
-			
-		conexionUno= mock(Connection.class);
-		conexionDos = mock(Connection.class);
+		BoardTest.game = game;
 		
-	//	Añadimos los dobles al objeto TicTacToeGame
-			
-		game.addConnection(conexionUno);
-		game.addConnection(conexionDos);
-			
-	//	Creamos los dos jugadores (Player)
-			
-		jugadorUno = new Player(1, "x", "Jugador Uno");
-		jugadorDos = new Player(2, "o", "Jugador Dos");
-			
-	// Primero añadimos al jugador uno
+		//añadir conexiones
+		game.addConnection(c1);
+		game.addConnection(c2);
 		
-		game.addPlayer(jugadorUno);
-		
-	// Verificaremos que las conexiones 1 y 2 reciben el evento JOIN_GAME para el jugador uno
+		//añadir juagdores
+		game.addPlayer(p1);
+		game.addPlayer(p2);
+	}
 	
-		verify(conexionUno).sendEvent(eq(EventType.JOIN_GAME), argThat(hasItems(jugadorUno)));
-		verify(conexionDos).sendEvent(eq(EventType.JOIN_GAME), argThat(hasItems(jugadorUno)));
-		
-	// Borramos el registro de llamadas a los metodos del mock con reset
-			
-		reset(conexionUno);
-		reset(conexionDos);
-
-	// Ahora añadimos al jugador 2 y comprobamos que las conexiones reciben el evento JOIN_GAME
-	
-		game.addPlayer(jugadorDos);
-			
-		verify(conexionUno).sendEvent(eq(EventType.JOIN_GAME), argThat(hasItems(jugadorUno, jugadorDos)));
-		verify(conexionDos).sendEvent(eq(EventType.JOIN_GAME), argThat(hasItems(jugadorUno, jugadorDos)));
-		
-
-		
-		// Establecemos el primer turno al jugador uno
-			
-		// TURNO 1 - jugador uno
-			
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-
+	@AfterEach
+	private void endConnection() {
+		//borrar registro de las capturas
+		reset(c1);
+		reset(c2);
 	}
 	
 	@Test
-	public void testJugadorUnoWinner() {
+	@DisplayName("Prueba de conexion")
+	void testConnection() {	
+		System.out.println("Empezando prueba de conexion de los jugadores");		
+		System.out.println("\tProbando conexion 1");
 		
-		// Lo realiza jugador uno
+		//capturar evento
+		ArgumentCaptor<Player> argument = ArgumentCaptor.forClass(Player.class);
+		verify(c1,times(2)).sendEvent(eq(EventType.JOIN_GAME),argument.capture());
+		System.out.println("\t\tExito en la captura de JOIN_GAME");
 		
-		game.mark(0);
+		//obtener valor
+		List<Player> pls=argument.getAllValues();
+		List<Player> sol= new LinkedList<>();
+		sol.add(p1);
+		sol.add(p2);
 		
-		// TURNO 1 - jugador dos 
+		//comprobar valor
+		Assertions.assertEquals(pls.get(0),sol);
+		Assertions.assertEquals(pls.get(1),sol);
 		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
+		System.out.println("\t\tExito en la obtención de los jugadores");
+		System.out.println("\tProbando conexion 2");
 		
-		// Borramos registro de llamadas 
+		//capturar evento 
+		verify(c2,times(2)).sendEvent(eq(EventType.JOIN_GAME),argument.capture());
+		System.out.println("\t\tExito en la captura de JOIN_GAME");
 		
-		reset(conexionUno);
-		reset(conexionDos);
+		//obtener valor
+		pls=argument.getAllValues();
 		
-		// Lo realiza jugador dos 
-		
-		game.mark(3);
-
-		// TURNO 2 - jugador uno
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador uno
-		
-		game.mark(1);
-		
-		// TURNO 2 - jugador dos
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador dos
-	
-		game.mark(4);
-		
-		// TURNO 3 - jugador uno
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador uno ( EL QUE GANA)
-		
-		game.mark(2);
-		
-		
-		
-		
-	//	AL final se comprueba que el juego acaba y segun las casillas marcadas uno gana y otro pierde
-	
-		ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
-		verify(conexionUno).sendEvent(eq(EventType.GAME_OVER), argument.capture());
-		WinnerValue event = (WinnerValue) argument.getValue();
-		
-		// Comprobamos que la conexion 2 recibe el GAME_OVER
-		verify(conexionDos).sendEvent(eq(EventType.GAME_OVER), eq(event));
-		
-		// Comprobamos quien ha ganado y quien ha perdido
-		
-		assertThat(event.player.equals(jugadorUno));
-		assertThat(!event.player.equals(jugadorDos));
-		assertNotNull(event);
-		
+		//comprobar valor
+		Assertions.assertEquals(pls.get(0),sol);
+		Assertions.assertEquals(pls.get(1),sol);
+		System.out.println("\t\tExito en la obtención de los jugadores");
+		System.out.println("\tPrueba de conexion superada");
 	}
 	
 	@Test
-	public void testJugadorDosWinner(){
-	
-		// Lo realiza jugador uno
+	@DisplayName("Prueba de turnos")
+	void checkTurn() {
+		System.out.println("Empezando prueba de cambio de turno");
 		
-		game.mark(0);
+		//capturar evento
+		ArgumentCaptor<Player> argument = ArgumentCaptor.forClass(Player.class);
+		BoardTest.rellenar(3);
+		verify(c1,times(9)).sendEvent(eq(EventType.SET_TURN), argument.capture());
+		System.out.println("\tExito en la captura de SET_TURN");
 		
-		// TURNO 1 - jugador dos 
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador dos 
-		
-		game.mark(3);
+		//obtener datos
+		List<Player> pls = argument.getAllValues();
+		Player player;
 
-		// TURNO 2 - jugador uno
+		//comprobar
+		for(int i = 0; i < pls.size(); i++) {
+			if(i % 2 == 0) player = p1;
+			else player = p2;
+			Assertions.assertEquals(pls.get(i),player);
+		}
+		System.out.println("\tExito en la obtención de los jugadores");
 		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
+		//capturar evento
+		ArgumentCaptor<WinnerValue> arg = ArgumentCaptor.forClass(WinnerValue.class);
+		verify(c1,times(1)).sendEvent(eq(EventType.GAME_OVER),arg.capture());
+		System.out.println("\tExito en la obtención GAME_OVER");
 		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
+		//obtener datos
+		List<WinnerValue> res =arg.getAllValues();
 		
-		// Lo realiza jugador uno
-		
-		game.mark(1);
-		
-		// TURNO 2 - jugador dos
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador dos
-	
-		game.mark(4);
-		
-		// TURNO 3 - jugador uno
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador uno
-		
-		game.mark(6);
-		
-		// TURNO 3 - jugador dos
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador dos (EL QUE GANA)
-		
-		game.mark(5);
-		
-		
-		//	AL final se comprueba que el juego acaba y segun las casillas marcadas uno gana y otro pierde
-		
-		ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
-		verify(conexionUno).sendEvent(eq(EventType.GAME_OVER), argument.capture());
-		WinnerValue event = (WinnerValue) argument.getValue();
-		
-		// Comprobamos que la conexion 2 recibe el GAME_OVER
-		
-		verify(conexionDos).sendEvent(eq(EventType.GAME_OVER), eq(event));
-		
-		
-		// Comprobamos quien ha ganado y quien ha perdido
-		
-		assertThat(event.player.equals(jugadorDos));
-		assertThat(!event.player.equals(jugadorUno));
-		assertNotNull(event);
-
+		//comprobar
+		Assertions.assertEquals(res.get(0).player,p1);
+		System.out.println("\tExito en la obtención del ganador");
+		System.out.println("\tPrueba de cambio te turno superada");
 	}
 	
 	@Test
-	public void testJuegoEmpatado() {
-		
-		// Lo realiza jugador uno
-		
-		game.mark(0);
-		
-		// TURNO 1 - jugador dos 
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador dos 
-		
-		game.mark(3);
+	@DisplayName("Prueba de invocacion de mark")
+	void testMark() {
+		System.out.println("Empezando la prueba de invocacion de mark");
 
-		// TURNO 2 - jugador uno
+		//capturar evento
+		ArgumentCaptor<Player> argument = ArgumentCaptor.forClass(Player.class);
+		BoardTest.rellenar(1);
+		verify(c1,times(5)).sendEvent(eq(EventType.MARK), argument.capture());
+		System.out.println("\tExito en la captura de MARK, caso: gana jugador 1");
 		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas 
+		reset(c1);
+		startGame();
+		BoardTest.rellenar(2);
+		verify(c1,times(6)).sendEvent(eq(EventType.MARK), argument.capture());
+		System.out.println("\tExito en la captura de MARK, caso: gana jugador 2");
 
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador uno
-		
-		game.mark(1);
-		
-		// TURNO 2 - jugador dos
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza jugador dos
-	
-		game.mark(4);
-		
-		// TURNO 3 - jugador uno
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador uno 
-		
-		game.mark(5);
-		
-		// TURNO 3 - jugador dos
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador dos
-		
-		game.mark(2);
-		
-		// TURNO 4 - jugador uno
-		
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador uno 
-		
-		game.mark(6);
-		
-		// TURNO 4 - jugador dos
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorDos));
+		reset(c1);
+		startGame();
+		BoardTest.rellenar(0);
+		verify(c1,times(9)).sendEvent(eq(EventType.MARK), argument.capture());
+		System.out.println("\tExito en la captura de MARK, caso: empate");
 				
-		// Borramos registro de llamadas 
-
-		reset(conexionUno);
-		reset(conexionDos);
-				
-		// Lo realiza el jugador dos
-				
-		game.mark(8);
-		
-		// TURNO 5 - jugador uno
-		
-		verify(conexionUno).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		verify(conexionDos).sendEvent(eq(EventType.SET_TURN), eq(jugadorUno));
-		
-		// Borramos registro de llamadas
-		
-		reset(conexionUno);
-		reset(conexionDos);
-		
-		// Lo realiza el jugador uno 
-		
-		game.mark(7);
-		
-		
-		
-		//	AL final se comprueba que el juego es un empate
-		
-		ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
-		verify(conexionUno).sendEvent(eq(EventType.GAME_OVER), argument.capture());
-		Object event = (WinnerValue) argument.getValue();
-		
-		// Comprobamos que la conexion 2 recibe el GAME_OVER
-		
-		verify(conexionDos).sendEvent(eq(EventType.GAME_OVER), eq(event));
-
-		assertNull(event);
-		
+		reset(c1);
+		startGame();
+		BoardTest.rellenar(3);
+		verify(c1,times(9)).sendEvent(eq(EventType.MARK), argument.capture());
+		System.out.println("\tExito en la captura de MARK, caso: gana jugador 1 con el ultimo movimiento");
+		System.out.println("\tPrueba de invocacion de mark superada");
 	}
 	
+	@Test
+	@DisplayName("Prueba de Victoria")
+	void testCheckWinnerMessage() {
+		System.out.println("Empezando prueba de victoria");
+		BoardTest.rellenar(1);
+		
+		//capturar evento
+		ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
+		verify(c1).sendEvent(eq(EventType.GAME_OVER), argument.capture());
+		System.out.println("\tExito en la captura de GAME_OVER");
+		
+		//obtener los valores
+		List<WinnerValue> res = argument.getAllValues();
+		Assertions.assertTrue(res.get(0).player.equals(p1));
+		System.out.println("\tExito en la obtención del ganador");
+		
+		//comprobar
+		Assertions.assertFalse(res.get(0).player.equals(p2));
+		System.out.println("\tPrueba de victoria superada");
+	}
+	
+	@Test
+	@DisplayName("Prueba de la derrota")
+	void testCheckLoserMessage() {
+		System.out.println("Empezando prueba de la derrota");
+		BoardTest.rellenar(2);
+		
+		//capturar evento
+		ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
+		verify(c1).sendEvent(eq(EventType.GAME_OVER), argument.capture());
+		System.out.println("\tExito en la captura de GAME_OVER");
+		
+		//obtener los valores
+		List<WinnerValue> res = argument.getAllValues();
+		Assertions.assertTrue(res.get(0).player.equals(p2));
+		System.out.println("\tExito en la obtención del ganador");
+		
+		//comprobar
+		Assertions.assertFalse(res.get(0).player.equals(p1));
+		System.out.println("\tPrueba de derrota superada");
+	}
+	
+	@Test
+	@DisplayName("Prueba del empate")
+	void testCheckDrawMessage() {
+		System.out.println("Empezando prueba del empate");
+		BoardTest.rellenar(0);
+		
+		//capturar evento
+		ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
+		verify(c1).sendEvent(eq(EventType.GAME_OVER), argument.capture());
+		System.out.println("\tExito en la captura de GAME_OVER");
+		
+		//obtener los valores
+		List<WinnerValue> res = argument.getAllValues();
+		Assertions.assertNull(res.get(0));
+		System.out.println("\tExito en la obtención del empate");
+		
+		//comprobar
+		System.out.println("\tPrueba del empate superada");
+	}
 }
