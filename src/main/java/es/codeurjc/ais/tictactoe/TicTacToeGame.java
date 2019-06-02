@@ -165,5 +165,10 @@ public class TicTacToeGame {
 			c.sendEvent(type, value);
 		}
 	}
+
+	public Board getBoard() {
+		// TODO Auto-generated method stub
+		return this.board;
+	}
 	
 }
