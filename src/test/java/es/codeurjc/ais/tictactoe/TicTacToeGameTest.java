@@ -22,7 +22,7 @@ import es.codeurjc.ais.tictactoe.TicTacToeGame.WinnerValue;
 import es.codeurjc.ais.tictactoe.Player;
 
 @DisplayName("Pruebas de dobles de la clase TicTacToeGame")
-class TicTacToeGameTest {
+public class TicTacToeGameTest {
 	private static Player p1;
 	private static Player p2;
 	private static TicTacToeGame game;

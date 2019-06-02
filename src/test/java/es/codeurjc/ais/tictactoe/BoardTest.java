@@ -14,10 +14,9 @@ import es.codeurjc.ais.tictactoe.Player;
 
 @DisplayName("Pruebas unitarias de la clase Board")
 public class BoardTest {
-	protected static TicTacToeGame game;
-	protected static Player p1;
-	protected static Player p2;
-	private Board b;
+	static TicTacToeGame game;
+	static Player p1, p2;
+	Board b;
 	
 	@BeforeAll
 	protected static void prepareTest() {
