@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Ranking</title>
+</head>
+<body>
+	<noscript><h1>ESTA PAGINA NECESITA JAVASCRIPT!</h1></noscript>
+	<h1> Ranking</h1>
+	<div id="ranking">
+		<table>
+			<tr> 
+				<td id="jugador">Jugador</td>
+				<td>Partidas Ganadas</td>
+				<td>Partidas Empatadas</td>
+				<td>Partidas Perdidas</td>
+			</tr>
+			<tr th:each="partida : ${partidas}">
+				<td><span th:text="${partida.getJugador()}"></span>
+				<td><span th:text="${partida.getPartidasGanadas()}"></span>
+				<td><span th:text="${partida.getPartidasEmpatadas()}"></span>
+				<td><span th:text="${partida.getPartidasPerdidas()}"></span>
+			</tr>
+		</table>
+	</div>
+	<div id="juego">
+		<label><a href="/">Volver</a></label>
+	</div>
+</body>
+</html>

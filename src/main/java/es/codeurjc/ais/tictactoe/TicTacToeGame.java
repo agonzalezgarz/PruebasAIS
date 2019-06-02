@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class TicTacToeGame {
+import es.codeurjc.ais.tictactoe.entidades.Player;
 
+public class TicTacToeGame {
 	enum EventType {
 		JOIN_GAME, GAME_READY, MARK, SET_TURN, GAME_OVER, RESTART, RECONNECT
 	}
@@ -119,21 +120,16 @@ public class TicTacToeGame {
 	}
 
 	public boolean checkDraw() {
-
-		return board.checkDraw();
+		return !this.checkWinner().win && board.checkDraw();
 	}
 
 	public void addPlayer(Player player) {
 
 		if (this.players.size() < 2) {
-
 			if (this.players.isEmpty() || players.get(0).getId() != player.getId()) {
-
 				this.players.add(player);
 				this.ready = this.players.size() == 2;
-				
 				this.sendEvent(EventType.JOIN_GAME, players);
-
 				if (this.ready) {
 					this.enableAll();
 					this.sendEvent(EventType.SET_TURN, this.players.get(this.currentTurn));
@@ -151,19 +147,18 @@ public class TicTacToeGame {
 	}
 	
 	public void restart() {
-
 		board = new Board();
-
 		sendEvent(EventType.RESTART, null);
-
 		changeTurn();
 	}
 
 	private void sendEvent(EventType type, Object value) {
-
 		for(Connection c : connections) {
 			c.sendEvent(type, value);
 		}
 	}
 	
+	protected Board getBoard() {
+		return this.board;
+	}
 }
