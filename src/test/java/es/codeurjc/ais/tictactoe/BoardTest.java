@@ -1,207 +1,166 @@
 package es.codeurjc.ais.tictactoe;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.*;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
-import es.codeurjc.ais.tictactoe.entidades.Player;
+import org.junit.Test;
 
-@DisplayName("Pruebas unitarias de la clase Board")
-public class BoardTest {
-	protected static TicTacToeGame game;
-	protected static Player p1;
-	protected static Player p2;
-	private Board b;
-	
-	@BeforeAll
-	protected static void prepareTest() {
-		p1 = new Player(10,"O","Player 1");
-		p2= new Player(11,"X","Player 2");
-	}
-	
-	@BeforeEach
-	private void empezarJuego() {
-		game = new TicTacToeGame();
-		game.addPlayer(p1);
-		game.addPlayer(p2);
-	}
-	
-	@Test
-	@DisplayName("Prueba de GetCellsIfWinner\nSituación 1: Jugador 1 gana")
-	void testGetCellsIfWinner1() {
-		System.out.println("Prueba de GetCellsIfWinner");
-		rellenar(1);
-		b = game.getBoard();
+public class BoardTest{
 		
-		// comprobar resultado
-		System.out.println("\tSituación 1: Gana Jugador1");
-		assertNotNull(b.getCellsIfWinner(p1.getLabel()));
-		assertNull(b.getCellsIfWinner(p2.getLabel()));
-		System.out.println("\tSituación 1 superada!");
-	}
+	// Crear tablero 
 	
-	@Test
-	@DisplayName("Prueba de GetCellsIfWinner\nSituación 2: Jugador 2 gana")
-	void testGetCellsIfWinner2() {
-		rellenar(2);
-		b = game.getBoard();
+	 Board tablero = new Board();
 		
-		//comprobar resultado
-		System.out.println("\tSituación 2: Gana Jugador2");
-		assertNotNull(b.getCellsIfWinner(p2.getLabel()));
-		assertNull(b.getCellsIfWinner(p1.getLabel()));
-		System.out.println("\tSituación 2 superada!");
+	// Creamos jugadores
+	 
+	Player jugadorUno = new Player(1, "x", "Jugador Uno");
+	Player jugadorDos = new Player(2, "o", "Jugador Dos");
+		
+
+	@Test
+	public void testJugadorUnoWinner() {
+		
+		//Simulamos una partida
+		
+		// Posicion ganadora esperada
+		
+		int[] posicion = {0, 1, 2};
+		
+		// {0, 1, 2} es una posicion ganadora		
+		
+		//Jugador Uno -> Una X en la posicion 0
+		
+		tablero.getCell(0).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 3
+		
+		tablero.getCell(3).value = jugadorDos.getLabel();
+		
+		//Jugador Uno -> Un X en la posicion 1
+		
+		tablero.getCell(1).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion
+		
+		tablero.getCell(4).value = jugadorDos.getLabel();
+		
+		//Jugador Uno -> Un X en la posicion 2
+		
+		tablero.getCell(2).value = jugadorUno.getLabel();
+		
+		
+		// Comprobamos que la posicion ganadora esperada es igual a la obtenida
+		
+		assertArrayEquals(posicion, tablero.getCellsIfWinner(jugadorUno.getLabel()));
+		
+		//Comprobamos si el jugador dos no tiene la posicion ganadora
+		
+		assertNull(tablero.getCellsIfWinner(jugadorDos.getLabel()));
+		
+		//Comprobamos que la partida no es un empate
+		
+		assertEquals(false, tablero.checkDraw());		
 	}
 	
 	@Test
-	@DisplayName("Prueba de GetCellsIfWinner\nSituación 3: Empate")
-	void testGetCellsIfWinner3() {
-		rellenar(0);
-		b = game.getBoard();
-
-		//comprobar resultado
-		System.out.println("\tSituación 3: Empate");
-		assertNull(b.getCellsIfWinner(p1.getLabel()));
-		assertNull(b.getCellsIfWinner(p2.getLabel()));
-		System.out.println("\tSituación 3 superada");
+	public void testJugadorDosWinner() {
+		
+		//Simulamos una partida
+		
+		// Posicion ganadora esperada
+		
+		int[] posicion = {3, 4, 5};
+		
+		//Jugador Uno -> Una X en la posicion 0
+		
+		tablero.getCell(0).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 3
+		
+		tablero.getCell(3).value = jugadorDos.getLabel();
+		
+		//Jugador Uno -> Un X en la posicion 1
+		
+		tablero.getCell(1).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 4
+		
+		tablero.getCell(4).value = jugadorDos.getLabel();
+		
+		//Jugador Uno -> Un X en la posicion 6
+		
+		tablero.getCell(6).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 5
+		
+		tablero.getCell(5).value = jugadorDos.getLabel();	
+		
+		
+		// Comprobamos que la posicion ganadora esperada es igual a la obtenida
+		
+		assertArrayEquals(posicion, tablero.getCellsIfWinner(jugadorDos.getLabel()));
+		
+		//Comprobamos si el jugador uno no tiene la posicion ganadora
+		
+		assertNull(tablero.getCellsIfWinner(jugadorUno.getLabel()));
+		
+		//Comprobamos que la partida no es un empate
+		
+		assertEquals(false, tablero.checkDraw());	
+		
 	}
 	
-	@Test
-	@DisplayName("Prueba de GetCellsIfWinner\nSituación 4: Jugador 1 gana con la ultima jugada")
-	void testGetCellsIfWinner4() {
-		rellenar(3);
-		b = game.getBoard();
+	@Test 
+	public void testJuegoEmpatado() {
+		
+		
+		//Simulamos una partida
+		
+		assertFalse(tablero.checkDraw());
+		
+		//Jugador Uno -> Una X en la posicion 0
+		
+		tablero.getCell(0).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 3
+		
+		tablero.getCell(3).value = jugadorDos.getLabel();
+		
+		//Jugador Uno -> Un X en la posicion 1
+		
+		tablero.getCell(1).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 4
+		
+		tablero.getCell(4).value = jugadorDos.getLabel();
+		
+		//Jugador Uno -> Un X en la posicion 5
+		
+		tablero.getCell(5).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 2
+		
+		tablero.getCell(2).value = jugadorDos.getLabel();
+			
+		//Jugador Uno -> Un X en la posicion 6
 
-		//comprobar resultado
-		System.out.println("\tSituación 4: Gana Jugador1 con el ultimo movimiento");
-		assertNotNull(b.getCellsIfWinner(p1.getLabel()));
-		assertNull(b.getCellsIfWinner(p2.getLabel()));
-		System.out.println("\tSituación 4 superada");
-	}
-	
-	@Test
-	@DisplayName("Prueba de CheckDraw\nSituación 1: Jugador 1 gana")
-	void testCheckDraw1() {
-		System.out.println("Prueba de CheckDraw");
-		rellenar(1);
-		b = game.getBoard();
+		tablero.getCell(6).value = jugadorUno.getLabel();
+		
+		//Jugador Dos -> Un O en la posicion 7
 
-		// comprobar resultado
-		System.out.println("\tSituación 1: Gana Jugador1");
-		assertTrue(b.checkDraw() == false);
-		System.out.println("\tSituación 1 superada");
-	}
-	
-	@Test
-	@DisplayName("Prueba de CheckDraw\nSituación 2: Jugador 2 gana")
-	void testCheckDraw2() {
-		rellenar(2);
-		b = game.getBoard();
+		tablero.getCell(7).value = jugadorDos.getLabel();
 
-		//comprobar resultado
-		System.out.println("\tSituación 2: Gana Jugador2");
-		assertTrue(b.checkDraw() == false);
-		System.out.println("\tSituación 2 superada");
-	}
-	
-	@Test
-	@DisplayName("Prueba de CheckDraw\nSituación 3: Empate")
-	void testCheckDraw3() {
-		rellenar(0);
-		b = game.getBoard();
-
-		//comprobar resultado
-		System.out.println("\tSituación 3: Empate");
-		assertTrue(b.checkDraw());
-		System.out.println("\tSituación 3 superada");
-	}
-	
-	@Test
-	@DisplayName("Prueba de CheckDraw\nSituación 4: Jugador 1 gana con el ultimo movimento")
-	void testCheckDraw4() {
-		rellenar(3);
-		b = game.getBoard();
-
-		//comprobar resultado
-		System.out.println("\tSituación 4: Gana Jugador1 con la ultima jugada");
-		assertFalse(b.checkDraw());
-		System.out.println("\tSituación 4 superada");
-	}
-
-	protected static void rellenar(int winner) {
-		int m1,m2;
-		switch(winner){
-			case 0:
-					//O X O  	 		
-					//O O X
-					//X O X 
-				for(int i = 0; i< 9; i++) {
-					if(game.checkTurn(10)) {
-						if(i == 0 || i==2|| i==4 || i== 7) game.mark(i);
-						else {
-							if(i==6) game.mark(3);
-							else if(i==8)game.mark(7);
-						}
-					} else {
-						if(i==1 || i==5) game.mark(i);
-						else {
-							if(i==3) game.mark(6);
-							else if(i==7) game.mark(8);
-						}
-					}
-				}		
-				break;
-			case 1:
-					//O O O
-					//X X -
-					//- - -
-				m1=-1;
-				m2=2;
-				for(int i=0; i < 6; i++) {
-					if(game.checkTurn(10)) {
-						m1 = m1+1;
-						game.mark(m1);
-					}
-					else {
-						m2= m2+1;
-						game.mark(m2);
-					}				
-				}
-				break;
-			case 2:
-					//X X X
-					//- O -
-					//O - O
-				m1=10;
-				m2=-1;
-				for(int i=0; i < 6; i++) {
-					if(game.checkTurn(11)) {
-						m2 = m2+1;
-						game.mark(m2);
-					}
-					else {
-						m1= m1-2;
-						game.mark(m1);
-					}	
-					
-				}
-				break;
-			case 3:
-					//O X O
-					//X O X
-					//X O O
-				for (int i = 0; i < 9; i++) {
-					if(i==6) game.mark(7);
-					else if(i==7) game.mark(6);
-					else game.mark(i);
-				}
-				break;
-		}
+		// Jugador Uno -> Un X en la posicion8
+		
+		tablero.getCell(8).value = jugadorUno.getLabel();
+		
+		// Ahora si seria un empate
+		
+		assertNull(tablero.getCellsIfWinner(jugadorUno.getLabel()));
+		
+		assertNull(tablero.getCellsIfWinner(jugadorDos.getLabel()));
+		
+		assertTrue(tablero.checkDraw());
+		
 	}
 }
